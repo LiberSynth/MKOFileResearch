@@ -4,7 +4,12 @@ uses
   System.SysUtils,
   System.IOUtils,
   uInterfaces in '..\..\MKOCommon\TaskManager\uInterfaces.pas',
-  uConsts in 'Common\uConsts.pas';
+  uCustomTasks in '..\..\MKOCommon\TaskManager\uCustomTasks.pas',
+  uTypes in '..\..\MKOCommon\TaskManager\uTypes.pas',
+  Common.uConsts in '..\..\MKOCommon\Utils\Common.uConsts.pas',
+  uConsts in 'Common\uConsts.pas',
+  uMaskFileSearchTask in 'Tasks\uMaskFileSearchTask.pas',
+  uFileContentResearchTask in 'Tasks\uFileContentResearchTask.pas';
 
 {$R *.res}
 
@@ -18,21 +23,8 @@ begin
   with MKOTaskLibrary do
   begin
 
-    RegisterTask(
-
-        SC_MASK_FILE_SEARCH_NAME,
-        SC_MASK_FILE_SEARCH_CAPTION,
-        SC_MASK_FILE_SEARCH_DESCRIPTION
-
-    );
-
-    RegisterTask(
-
-        SC_FILE_CONTENT_RESEARCH_NAME,
-        SC_FILE_CONTENT_RESEARCH_CAPTION,
-        SC_FILE_CONTENT_RESEARCH_DESCRIPTION
-
-    );
+    RegisterTask(TMaskFileSearchTask.Create);
+    RegisterTask(TFileContentResearchTask.Create);
 
   end;
 

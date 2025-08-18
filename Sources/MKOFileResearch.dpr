@@ -4,7 +4,7 @@ uses
   System.SysUtils,
   System.IOUtils,
   uInterfaces in '..\..\MKOCommon\TaskManager\uInterfaces.pas',
-  uConsts in 'uConsts.pas' {$R *.res};
+  uConsts in 'Common\uConsts.pas';
 
 {$R *.res}
 

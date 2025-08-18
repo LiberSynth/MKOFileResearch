@@ -162,7 +162,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\..\MKOCommon\TaskManager\uInterfaces.pas"/>
-        <DCCReference Include="uConsts.pas">
+        <DCCReference Include="Common\uConsts.pas">
             <Form>$R *.res</Form>
         </DCCReference>
         <BuildConfiguration Include="Base">

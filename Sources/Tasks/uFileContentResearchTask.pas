@@ -21,13 +21,55 @@ type
     function GetCaption: WideString; safecall;
     function GetDescription: WideString; safecall;
     function GetParamsHelpText: WideString; safecall;
-    procedure ValidateParams(const _Params: WideString); safecall;
-    procedure Start(const _Params: WideString); safecall;
-    procedure Cancel; safecall;
+    procedure ValidateParams(var _Params: WideString); safecall;
+    function StartTask(const _Params: WideString): IMKOTaskInstance; safecall;
 
   end;
 
 implementation
+
+type
+
+  TFileContentResearchTaskInstance = class(TInterfacedObject, IMKOTaskInstance)
+
+  strict private
+
+    FParams: String;
+    FTerminated: Boolean;
+
+    { IMKOTaskInstance }
+    procedure Execute; safecall;
+    procedure Terminate; safecall;
+
+    property Params: String read FParams;
+    property Terminated: Boolean read FTerminated;
+
+  private
+
+    constructor Create(const _Params: String);
+
+  end;
+
+{ TFileContentResearchTaskInstance }
+
+constructor TFileContentResearchTaskInstance.Create(const _Params: String);
+begin
+  inherited Create;
+  FParams := _Params;
+end;
+
+procedure TFileContentResearchTaskInstance.Execute;
+begin
+
+  while not Terminated do
+    Sleep(200);
+
+end;
+
+procedure TFileContentResearchTaskInstance.Terminate;
+begin
+  FTerminated := True;
+end;
 
 { TFileContentResearchTask }
 
@@ -51,19 +93,14 @@ begin
   Result := SC_FILE_CONTENT_RESEARCH_PARAMS_HELP_TEXT;
 end;
 
-procedure TFileContentResearchTask.ValidateParams(const _Params: WideString);
+procedure TFileContentResearchTask.ValidateParams(var _Params: WideString);
 begin
 
 end;
 
-procedure TFileContentResearchTask.Start(const _Params: WideString);
+function TFileContentResearchTask.StartTask(const _Params: WideString): IMKOTaskInstance;
 begin
-  MessageBox(0, PWideChar('TFileContentResearchTask started. Params:' + CRLFx2 + _Params), PWideChar('Info'), 1);
-end;
-
-procedure TFileContentResearchTask.Cancel;
-begin
-
+  Result := TFileContentResearchTaskInstance.Create(_Params);
 end;
 
 end.

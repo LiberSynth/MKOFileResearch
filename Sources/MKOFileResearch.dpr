@@ -9,7 +9,8 @@ uses
   Common.uConsts in '..\..\MKOCommon\Utils\Common.uConsts.pas',
   uConsts in 'Common\uConsts.pas',
   uMaskFileSearchTask in 'Tasks\uMaskFileSearchTask.pas',
-  uFileContentResearchTask in 'Tasks\uFileContentResearchTask.pas';
+  uFileContentResearchTask in 'Tasks\uFileContentResearchTask.pas',
+  Common.uUtils in '..\..\MKOCommon\Utils\Common.uUtils.pas';
 
 {$R *.res}
 

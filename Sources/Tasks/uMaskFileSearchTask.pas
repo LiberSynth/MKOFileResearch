@@ -8,7 +8,7 @@ uses
   { Common }
   uCustomTasks,
   { MFR }
-  uConsts, uTypes, Common.uConsts;
+  uInterfaces, uConsts, uTypes, Common.uConsts;
 
 type
 
@@ -21,12 +21,61 @@ type
     function GetDescription: WideString; override; safecall;
     function GetParamsHelpText: WideString; override; safecall;
     procedure ValidateParams(const _Params: TArray<String>); override;
-    procedure Start(const _Params: TArray<String>); override;
-    procedure Cancel; override; safecall;
+    function StartTask(const _Params: TArray<String>): IMKOTaskInstance; override;
 
   end;
 
 implementation
+
+type
+
+  TMaskFileSearchTaskInstance = class(TInterfacedObject, IMKOTaskInstance)
+
+  strict private
+
+    FParams: TArray<String>;
+    FTerminated: Boolean;
+
+    { IMKOTaskInstance }
+    procedure Execute; safecall;
+    procedure Terminate; safecall;
+
+    property Params: TArray<String> read FParams;
+    property Terminated: Boolean read FTerminated;
+
+  private
+
+    constructor Create(const _Params: TArray<String>);
+
+  end;
+
+{ TMaskFileSearchTaskInstance }
+
+constructor TMaskFileSearchTaskInstance.Create(const _Params: TArray<String>);
+begin
+  inherited Create;
+  FParams := _Params;
+end;
+
+procedure TMaskFileSearchTaskInstance.Execute;
+begin
+
+  while not Terminated do
+
+    MessageBox(0, PWideChar(
+
+        'TMaskFileSearchTask started. Params:' + CRLFx2 +
+        Params[0] + CRLF +
+        Params[1] + CRLF),
+
+    PWideChar('Info'), 1);
+
+end;
+
+procedure TMaskFileSearchTaskInstance.Terminate;
+begin
+  FTerminated := True;
+end;
 
 { TMaskFileSearchTask }
 
@@ -53,26 +102,16 @@ end;
 procedure TMaskFileSearchTask.ValidateParams(const _Params: TArray<String>);
 begin
 
+  {TODO 2 -oVasilevSM : Здесь же нужно нормализовывать параметры до общего для задачи вида. Триммить тоже
+    здесь. Вообще, параметры могут быть любыми, поэтому их приведение в порядок - дело конкретной задачи. }
   if Length(_Params) <> 2 then
     raise EMKOLibException.Create('Params error');
 
 end;
 
-procedure TMaskFileSearchTask.Start(const _Params: TArray<String>);
+function TMaskFileSearchTask.StartTask(const _Params: TArray<String>): IMKOTaskInstance;
 begin
-  MessageBox(0, PWideChar(
-
-      'TMaskFileSearchTask started. Params:' + CRLFx2 +
-      _Params[0] + CRLF +
-      _Params[1] + CRLF),
-
-  PWideChar('Info'), 1);
-
-end;
-
-procedure TMaskFileSearchTask.Cancel;
-begin
-
+  Result := TMaskFileSearchTaskInstance.Create(_Params);
 end;
 
 end.

@@ -170,6 +170,7 @@
         <DCCReference Include="Tasks\uFileContentResearchTask.pas">
             <Form>$R *.res</Form>
         </DCCReference>
+        <DCCReference Include="..\..\MKOCommon\Utils\Common.uUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

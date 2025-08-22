@@ -4,7 +4,7 @@ interface
 
 uses
   { VCL }
-  Winapi.Windows,
+  Winapi.Windows, System.SysUtils,
   { Common }
   uCustomTasks,
   { MFR }
@@ -29,6 +29,7 @@ implementation
 
 type
 
+  {TODO 2 -oVasilevSM : Ну уж, раз начал кастомные классы делать, то и для этого тоже нужен. }
   TMaskFileSearchTaskInstance = class(TInterfacedObject, IMKOTaskInstance)
 
   strict private
@@ -37,7 +38,7 @@ type
     FTerminated: Boolean;
 
     { IMKOTaskInstance }
-    procedure Execute; safecall;
+    procedure Execute(_WriteOutIntf: IMKOTaskWiteOut); safecall;
     procedure Terminate; safecall;
 
     property Params: TArray<String> read FParams;
@@ -57,10 +58,15 @@ begin
   FParams := _Params;
 end;
 
-procedure TMaskFileSearchTaskInstance.Execute;
+procedure TMaskFileSearchTaskInstance.Execute(_WriteOutIntf: IMKOTaskWiteOut);
+var
+  Counter: Integer;
 begin
 
-  while not Terminated do
+  Counter := 0;
+
+  while not Terminated and (Counter < 3) do
+  begin
 
     MessageBox(0, PWideChar(
 
@@ -69,6 +75,12 @@ begin
         Params[1] + CRLF),
 
     PWideChar('Info'), 1);
+
+    _WriteOutIntf.WriteOut(ClassName + ': ' + Counter.ToString + '.');
+
+    Inc(Counter);
+
+  end;
 
 end;
 

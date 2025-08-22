@@ -38,7 +38,7 @@ type
     FTerminated: Boolean;
 
     { IMKOTaskInstance }
-    procedure Execute; safecall;
+    procedure Execute(_WriteOutIntf: IMKOTaskWiteOut); safecall;
     procedure Terminate; safecall;
 
     property Params: String read FParams;
@@ -58,7 +58,7 @@ begin
   FParams := _Params;
 end;
 
-procedure TFileContentResearchTaskInstance.Execute;
+procedure TFileContentResearchTaskInstance.Execute(_WriteOutIntf: IMKOTaskWiteOut);
 begin
 
   while not Terminated do

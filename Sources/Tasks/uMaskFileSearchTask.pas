@@ -5,23 +5,21 @@ interface
 uses
   { VCL }
   Winapi.Windows, System.SysUtils,
-  { Common }
-  uCustomTasks,
   { MFR }
-  uInterfaces, uConsts, uTypes, Common.uConsts;
+  uInterfaces, uConsts, uTypes, Common.uConsts, Common.uUtils, uFileExplorer;
 
 type
 
-  TMaskFileSearchTask = class(TCustomMKOTask)
+  TMaskFileSearchTask = class(TInterfacedObject, IMKOTask)
 
   protected
 
-    function GetName: WideString; override; safecall;
-    function GetCaption: WideString; override; safecall;
-    function GetDescription: WideString; override; safecall;
-    function GetParamsHelpText: WideString; override; safecall;
-    procedure ValidateParams(const _Params: TArray<String>); override;
-    function StartTask(const _Params: TArray<String>): IMKOTaskInstance; override;
+    function GetName: WideString; safecall;
+    function GetCaption: WideString; safecall;
+    function GetDescription: WideString; safecall;
+    function GetParamsHelpText: WideString; safecall;
+    function ValidateParams(const _Params: IMKOTaskParams): LongBool; safecall;
+    function StartTask(const _Params: IMKOTaskParams): IMKOTaskInstance; safecall;
 
   end;
 
@@ -29,64 +27,169 @@ implementation
 
 type
 
-  {TODO 2 -oVasilevSM : Ќу уж, раз начал кастомные классы делать, то и дл€ этого тоже нужен. }
   TMaskFileSearchTaskInstance = class(TInterfacedObject, IMKOTaskInstance)
 
   strict private
 
-    FParams: TArray<String>;
+    FParams: IMKOTaskParams;
     FTerminated: Boolean;
+    FOutputIntf: IMKOTaskOutput;
+    FPath: String;
+    FMasks: String;
+    FFileCount: Integer;
+    FProcessedCount: Integer;
+    FMatchingCount: Integer;
+    FProgress: Byte;
 
     { IMKOTaskInstance }
-    procedure Execute(_WriteOutIntf: IMKOTaskWiteOut); safecall;
+    procedure Execute(const _OutputIntf: IMKOTaskOutput); safecall;
     procedure Terminate; safecall;
 
-    property Params: TArray<String> read FParams;
+    procedure InitResearch(const _OutputIntf: IMKOTaskOutput);
+    procedure CountFiles;
+    procedure ProcessFiles;
+    procedure WriteOut(const _Value: WideString; _Progress: Integer);
+
+    property Params: IMKOTaskParams read FParams;
     property Terminated: Boolean read FTerminated;
+    property OutputIntf: IMKOTaskOutput read FOutputIntf;
+    property Path: String read FPath;
+    property Masks: String read FMasks;
+    property FileCount: Integer read FFileCount;
+    property ProcessedCount: Integer read FProcessedCount;
+    property MatchingCount: Integer read FMatchingCount;
+    property Progress: Byte read FProgress write FProgress;
 
   private
 
-    constructor Create(const _Params: TArray<String>);
+    constructor Create(const _Params: IMKOTaskParams);
 
   end;
 
 { TMaskFileSearchTaskInstance }
 
-constructor TMaskFileSearchTaskInstance.Create(const _Params: TArray<String>);
+constructor TMaskFileSearchTaskInstance.Create(const _Params: IMKOTaskParams);
 begin
   inherited Create;
   FParams := _Params;
 end;
 
-procedure TMaskFileSearchTaskInstance.Execute(_WriteOutIntf: IMKOTaskWiteOut);
-var
-  Counter: Integer;
+procedure TMaskFileSearchTaskInstance.CountFiles;
 begin
 
-  Counter := 0;
+  ExploreFiles(
 
-  while not Terminated and (Counter < 3) do
+      Path,
+      Masks,
+      True,
+      procedure (const _File: String; _MaskMatches: Boolean; var _Terminated: Boolean)
+      begin
+
+        if Terminated then
+          _Terminated := True
+        else
+          Inc(FFileCount);
+
+      end
+
+  );
+
+end;
+
+procedure TMaskFileSearchTaskInstance.ProcessFiles;
+begin
+
+  ExploreFiles(
+
+      Path,
+      Masks,
+      True,
+      procedure (const _File: String; _MaskMatches: Boolean; var _Terminated: Boolean)
+      begin
+
+        if Terminated then
+
+          _Terminated := True
+
+        else
+        begin
+
+          Inc(FProcessedCount);
+          Progress := Round(ProcessedCount / FileCount * 100);
+
+          if _MaskMatches then
+          begin
+
+            {$IFDEF DEBUG}
+            Sleep(100);
+            {$ENDIF}
+            Inc(FMatchingCount);
+            WriteOut(_File, Progress);
+
+          end
+          else
+            WriteOut('', Progress);
+
+          if Terminated then
+            _Terminated := True;
+
+        end;
+
+      end
+
+  );
+
+end;
+
+procedure TMaskFileSearchTaskInstance.Execute(const _OutputIntf: IMKOTaskOutput);
+begin
+
+  InitResearch(_OutputIntf);
+
+  WriteOut(SC_FILE_SEARCH_TASK_PREPARING_MESSAGE, -1);
+  CountFiles;
+
+  if Terminated then
+    Exit;
+
+  WriteOut(SC_FILE_SEARCH_TASK_PROCESSING_MESSAGE, -1);
+  ProcessFiles;
+
+  WriteOut(Format(SC_FILE_SEARCH_TASK_COMPLETE_MESSAGE, [FileCount, MatchingCount]), -1);
+
+end;
+
+procedure TMaskFileSearchTaskInstance.InitResearch(const _OutputIntf: IMKOTaskOutput);
+begin
+
+  FOutputIntf := _OutputIntf;
+
+  if Params.Count = 2 then
   begin
 
-    MessageBox(0, PWideChar(
+    FMasks := Params[0];
+    FPath := Params[1];
 
-        'TMaskFileSearchTask started. Params:' + CRLFx2 +
-        Params[0] + CRLF +
-        Params[1] + CRLF),
+  end
+  else
+  begin
 
-    PWideChar('Info'), 1);
+    FMasks := '';
+    FPath := Params[0];
 
-    _WriteOutIntf.WriteOut(ClassName + ': ' + Counter.ToString + '.');
-
-    Inc(Counter);
-
-  end;
+  end
 
 end;
 
 procedure TMaskFileSearchTaskInstance.Terminate;
 begin
   FTerminated := True;
+end;
+
+procedure TMaskFileSearchTaskInstance.WriteOut(const _Value: WideString; _Progress: Integer);
+begin
+  if not Terminated then
+    OutputIntf.WriteOut(_Value, _Progress);
 end;
 
 { TMaskFileSearchTask }
@@ -111,17 +214,38 @@ begin
   Result := SC_MASK_FILE_SEARCH_PARAMS_HELP_TEXT;
 end;
 
-procedure TMaskFileSearchTask.ValidateParams(const _Params: TArray<String>);
+function TMaskFileSearchTask.ValidateParams(const _Params: IMKOTaskParams): LongBool; safecall;
+const
+  SC_FORMAT = '%s%s' + CRLF;
+var
+  EM: String;
 begin
 
-  {TODO 2 -oVasilevSM : «десь же нужно нормализовывать параметры до общего дл€ задачи вида. “риммить тоже
-    здесь. ¬ообще, параметры могут быть любыми, поэтому их приведение в пор€док - дело конкретной задачи. }
-  if Length(_Params) <> 2 then
-    raise EMKOLibException.Create('Params error');
+  with _Params do
+  begin
+
+    EM := '';
+
+    if not Count in [1, 2] then
+      EM := Format(SC_FORMAT, [EM, SC_FILE_SEARCH_TASK_PARAMS_COUNT_ERROR]);
+
+    if
+
+        ((Count = 1) and not DirectoryExists(_Params[0])) or
+        ((Count = 2) and not DirectoryExists(_Params[1]))
+
+    then EM := Format(SC_FORMAT, [EM, SC_FILE_SEARCH_TASK_DIRECTORY_NOT_FOUND_ERROR]);
+
+    Result := not CutStr(EM, 2);
+
+    if not Result then
+      ErrorMessage := EM;
+
+  end;
 
 end;
 
-function TMaskFileSearchTask.StartTask(const _Params: TArray<String>): IMKOTaskInstance;
+function TMaskFileSearchTask.StartTask(const _Params: IMKOTaskParams): IMKOTaskInstance; safecall;
 begin
   Result := TMaskFileSearchTaskInstance.Create(_Params);
 end;

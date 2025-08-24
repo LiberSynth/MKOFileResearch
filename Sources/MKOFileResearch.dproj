@@ -164,13 +164,15 @@
         <DCCReference Include="..\..\MKOCommon\TaskManager\uInterfaces.pas"/>
         <DCCReference Include="..\..\MKOCommon\TaskManager\uTypes.pas"/>
         <DCCReference Include="..\..\MKOCommon\Utils\Common.uConsts.pas"/>
+        <DCCReference Include="..\..\MKOCommon\Utils\Common.uUtils.pas"/>
+        <DCCReference Include="..\..\MKOCommon\Utils\uFileExplorer.pas"/>
+        <DCCReference Include="..\..\MKOCommon\TaskManager\uCustomTasks.pas"/>
+        <DCCReference Include="..\..\MKOCommon\Utils\uFileUtils.pas"/>
         <DCCReference Include="Common\uConsts.pas"/>
         <DCCReference Include="Tasks\uMaskFileSearchTask.pas"/>
         <DCCReference Include="Tasks\uFileContentResearchTask.pas">
             <Form>$R *.res</Form>
         </DCCReference>
-        <DCCReference Include="..\..\MKOCommon\Utils\Common.uUtils.pas"/>
-        <DCCReference Include="..\..\MKOCommon\Utils\uFileExplorer.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

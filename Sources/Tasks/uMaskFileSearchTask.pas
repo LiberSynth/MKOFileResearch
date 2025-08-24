@@ -5,21 +5,23 @@ interface
 uses
   { VCL }
   Winapi.Windows, System.SysUtils,
+  { Common }
+  uInterfaces, uCustomTasks,
   { MFR }
-  uInterfaces, uConsts, uTypes, Common.uConsts, Common.uUtils, uFileExplorer;
+  uConsts, uTypes, Common.uConsts, Common.uUtils, uFileExplorer;
 
 type
 
-  TMaskFileSearchTask = class(TInterfacedObject, IMKOTask)
+  TMaskFileSearchTask = class(TCustomTask)
 
   protected
 
-    function GetName: WideString; safecall;
-    function GetCaption: WideString; safecall;
-    function GetDescription: WideString; safecall;
-    function GetParamsHelpText: WideString; safecall;
-    function ValidateParams(const _Params: IMKOTaskParams): LongBool; safecall;
-    function StartTask(const _Params: IMKOTaskParams): IMKOTaskInstance; safecall;
+    function GetName: WideString; override; safecall;
+    function GetCaption: WideString; override; safecall;
+    function GetDescription: WideString; override; safecall;
+    function GetParamsHelpText: WideString; override; safecall;
+    function ValidateParams(const _Params: IMKOTaskParams): LongBool; override; safecall;
+    function StartTask(const _Params: IMKOTaskParams): IMKOTaskInstance; override; safecall;
 
   end;
 
@@ -27,52 +29,30 @@ implementation
 
 type
 
-  TMaskFileSearchTaskInstance = class(TInterfacedObject, IMKOTaskInstance)
+  TMaskFileSearchTaskInstance = class(TCustomMKOTaskInstance)
 
   strict private
 
-    FParams: IMKOTaskParams;
-    FTerminated: Boolean;
-    FOutputIntf: IMKOTaskOutput;
     FPath: String;
     FMasks: String;
     FFileCount: Integer;
     FProcessedCount: Integer;
     FMatchingCount: Integer;
-    FProgress: Byte;
 
-    { IMKOTaskInstance }
-    procedure Execute(const _OutputIntf: IMKOTaskOutput); safecall;
-    procedure Terminate; safecall;
-
-    procedure InitResearch(const _OutputIntf: IMKOTaskOutput);
+    procedure Execute(const _OutputIntf: IMKOTaskOutput); override; safecall;
+    procedure Init(const _OutputIntf: IMKOTaskOutput); override;
     procedure CountFiles;
     procedure ProcessFiles;
-    procedure WriteOut(const _Value: WideString; _Progress: Integer);
 
-    property Params: IMKOTaskParams read FParams;
-    property Terminated: Boolean read FTerminated;
-    property OutputIntf: IMKOTaskOutput read FOutputIntf;
     property Path: String read FPath;
     property Masks: String read FMasks;
     property FileCount: Integer read FFileCount;
     property ProcessedCount: Integer read FProcessedCount;
     property MatchingCount: Integer read FMatchingCount;
-    property Progress: Byte read FProgress write FProgress;
-
-  private
-
-    constructor Create(const _Params: IMKOTaskParams);
 
   end;
 
 { TMaskFileSearchTaskInstance }
-
-constructor TMaskFileSearchTaskInstance.Create(const _Params: IMKOTaskParams);
-begin
-  inherited Create;
-  FParams := _Params;
-end;
 
 procedure TMaskFileSearchTaskInstance.CountFiles;
 begin
@@ -97,6 +77,8 @@ begin
 end;
 
 procedure TMaskFileSearchTaskInstance.ProcessFiles;
+var
+  Progress: ShortInt;
 begin
 
   ExploreFiles(
@@ -120,9 +102,6 @@ begin
           if _MaskMatches then
           begin
 
-            {$IFDEF DEBUG}
-            Sleep(100);
-            {$ENDIF}
             Inc(FMatchingCount);
             WriteOut(_File, Progress);
 
@@ -144,7 +123,7 @@ end;
 procedure TMaskFileSearchTaskInstance.Execute(const _OutputIntf: IMKOTaskOutput);
 begin
 
-  InitResearch(_OutputIntf);
+  inherited Execute(_OutputIntf);
 
   WriteOut(SC_FILE_SEARCH_TASK_PREPARING_MESSAGE, -1);
   CountFiles;
@@ -159,10 +138,10 @@ begin
 
 end;
 
-procedure TMaskFileSearchTaskInstance.InitResearch(const _OutputIntf: IMKOTaskOutput);
+procedure TMaskFileSearchTaskInstance.Init(const _OutputIntf: IMKOTaskOutput);
 begin
 
-  FOutputIntf := _OutputIntf;
+  inherited Init(_OutputIntf);
 
   if Params.Count = 2 then
   begin
@@ -179,17 +158,6 @@ begin
 
   end
 
-end;
-
-procedure TMaskFileSearchTaskInstance.Terminate;
-begin
-  FTerminated := True;
-end;
-
-procedure TMaskFileSearchTaskInstance.WriteOut(const _Value: WideString; _Progress: Integer);
-begin
-  if not Terminated then
-    OutputIntf.WriteOut(_Value, _Progress);
 end;
 
 { TMaskFileSearchTask }

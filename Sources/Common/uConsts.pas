@@ -30,8 +30,12 @@ const
       'Параметр 1 - шаблон для поиска вхождения в файле. Например, "libsec".' + CRLF +
       'Параметр 2 - имя и путь файла. Например, "P:\Dumps\BigFile.bin".';
 
-  SC_CONTENT_RESEARCH_TASK_PARAMS_COUNT_ERROR   = 'Для этой задачи требуется два параметра.';
-  SC_CONTENT_RESEARCH_TASK_FILE_NOT_FOUND_ERROR = 'Файл по указанному пути не найден.';
+  SC_CONTENT_RESEARCH_TASK_PARAMS_COUNT_ERROR    = 'Для этой задачи требуется два параметра.';
+  SC_CONTENT_RESEARCH_TASK_FILE_NOT_FOUND_ERROR  = 'Файл по указанному пути не найден.';
+  SC_CONTENT_RESEARCH_TASK_PREPARING_MESSAGE     = 'Подготовка к выполнению задачи.';
+  SC_CONTENT_RESEARCH_TASK_PROCESSING_MESSAGE    = 'Выполнение задачи.';
+  SC_CONTENT_RESEARCH_TASK_COMPLETE_MESSAGE      = 'Процесс завершен. Размер файла: %d, найдено вхождений: %d.';
+  SC_CONTENT_RESEARCH_TASK_PATTERN_FOUND_MESSAGE = 'Найдено вхождение шаблона, позиция %d.';
 
 implementation
 

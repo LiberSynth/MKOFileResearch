@@ -6,23 +6,22 @@ uses
   { VCL }
   Winapi.Windows, System.SysUtils,
   { Common }
-  uInterfaces,
+  uInterfaces, uCustomTasks, uFileUtils,
   { MFR }
   uConsts, Common.uConsts, Common.uUtils, uTypes;
 
 type
 
-  TFileContentResearchTask = class(TInterfacedObject, IMKOTask)
+  TFileContentResearchTask = class(TCustomTask)
 
-  strict private
+  protected
 
-    { IMKOTask }
-    function GetName: WideString; safecall;
-    function GetCaption: WideString; safecall;
-    function GetDescription: WideString; safecall;
-    function GetParamsHelpText: WideString; safecall;
-    function ValidateParams(const _Params: IMKOTaskParams): LongBool; safecall;
-    function StartTask(const _Params: IMKOTaskParams): IMKOTaskInstance; safecall;
+    function GetName: WideString; override; safecall;
+    function GetCaption: WideString; override; safecall;
+    function GetDescription: WideString; override; safecall;
+    function GetParamsHelpText: WideString; override; safecall;
+    function ValidateParams(const _Params: IMKOTaskParams): LongBool; override; safecall;
+    function StartTask(const _Params: IMKOTaskParams): IMKOTaskInstance; override; safecall;
 
   end;
 
@@ -30,61 +29,97 @@ implementation
 
 type
 
-  TFileContentResearchTaskInstance = class(TInterfacedObject, IMKOTaskInstance)
+  TFileContentResearchTaskInstance = class(TCustomMKOTaskInstance)
 
   strict private
 
-    FParams: IMKOTaskParams;
-    FTerminated: Boolean;
+    FPattern: TBLOB;
+    FPath: String;
+    FFileData: TBLOB;
+    FDataLength: LongInt;
+    FPatternLength: Integer;
+    FOccurenceCount: LongInt;
 
-    { IMKOTaskInstance }
-    procedure Execute(const _OutputIntf: IMKOTaskOutput); safecall;
-    procedure Terminate; safecall;
+    procedure ReadFile;
+    procedure ProcessData;
 
-    property Params: IMKOTaskParams read FParams;
-    property Terminated: Boolean read FTerminated;
+    property Pattern: TBLOB read FPattern;
+    property Path: String read FPath;
+    property FileData: TBLOB read FFileData;
+    property DataLength: LongInt read FDataLength;
+    property PatternLength: Integer read FPatternLength;
+    property OccurenceCount: LongInt read FOccurenceCount;
 
-  private
+  protected
 
-    constructor Create(const _Params: IMKOTaskParams);
+    procedure Execute(const _OutputIntf: IMKOTaskOutput); override; safecall;
+    procedure Init(const _OutputIntf: IMKOTaskOutput); override;
 
   end;
 
 { TFileContentResearchTaskInstance }
 
-constructor TFileContentResearchTaskInstance.Create(const _Params: IMKOTaskParams);
+procedure TFileContentResearchTaskInstance.Execute(const _OutputIntf: IMKOTaskOutput);
 begin
-  inherited Create;
-  FParams := _Params;
+
+  inherited Execute(_OutputIntf);
+
+  WriteOut(SC_CONTENT_RESEARCH_TASK_PREPARING_MESSAGE, -1);
+  ReadFile;
+
+  if Terminated then
+    Exit;
+
+  WriteOut(SC_CONTENT_RESEARCH_TASK_PROCESSING_MESSAGE, -1);
+  ProcessData;
+
+  WriteOut(Format(SC_CONTENT_RESEARCH_TASK_COMPLETE_MESSAGE, [DataLength, OccurenceCount]), -1);
+
 end;
 
-procedure TFileContentResearchTaskInstance.Execute(const _OutputIntf: IMKOTaskOutput);
-var
-  Counter: Integer;
+procedure TFileContentResearchTaskInstance.Init(const _OutputIntf: IMKOTaskOutput);
 begin
 
-  Counter := 0;
+  inherited Init(_OutputIntf);
 
-  while not Terminated and (Counter < 10) do
+  FPattern := TBLOB(AnsiString(Params[0]));
+  FPath := Params[1];
+
+  FPatternLength := Length(Pattern);
+
+end;
+
+procedure TFileContentResearchTaskInstance.ProcessData;
+var
+  i, L: LongInt;
+  Progress: ShortInt;
+begin
+
+  L := DataLength - PatternLength;
+  for i := 1 to L + 1 do
   begin
 
-    Sleep(800);
-    Inc(Counter);
+    Progress := Round(i / L * 100);
 
-    _OutputIntf.WriteOut(
+    if Copy(FileData, i, PatternLength) = Pattern then
+    begin
 
-        ClassName + ': ' + Counter.ToString + '.',
-        Counter * 10
+      WriteOut(Format(SC_CONTENT_RESEARCH_TASK_PATTERN_FOUND_MESSAGE, [i]), Progress);
+      Inc(FOccurenceCount);
 
-    );
+    end
+    else WriteOut('', Progress);
 
   end;
 
 end;
 
-procedure TFileContentResearchTaskInstance.Terminate;
+procedure TFileContentResearchTaskInstance.ReadFile;
 begin
-  FTerminated := True;
+
+  FFileData := FileToBLOB(Path);
+  FDataLength := Length(FileData);
+
 end;
 
 { TFileContentResearchTask }

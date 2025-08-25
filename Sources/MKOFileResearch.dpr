@@ -3,13 +3,13 @@ library MKOFileResearch;
 uses
   System.SysUtils,
   System.IOUtils,
-  uInterfaces in '..\..\MKOCommon\TaskManager\uInterfaces.pas',
-  uTypes in '..\..\MKOCommon\TaskManager\uTypes.pas',
+  Common.uInterfaces in '..\..\MKOCommon\TaskManager\Common.uInterfaces.pas',
+  Common.uTypes in '..\..\MKOCommon\TaskManager\Common.uTypes.pas',
   Common.uConsts in '..\..\MKOCommon\Utils\Common.uConsts.pas',
   Common.uUtils in '..\..\MKOCommon\Utils\Common.uUtils.pas',
-  uFileExplorer in '..\..\MKOCommon\Utils\uFileExplorer.pas',
-  uCustomTasks in '..\..\MKOCommon\TaskManager\uCustomTasks.pas',
-  uFileUtils in '..\..\MKOCommon\Utils\uFileUtils.pas',
+  Common.uFileExplorer in '..\..\MKOCommon\Utils\Common.uFileExplorer.pas',
+  Common.uCustomTasks in '..\..\MKOCommon\TaskManager\Common.uCustomTasks.pas',
+  Common.uFileUtils in '..\..\MKOCommon\Utils\Common.uFileUtils.pas',
   uConsts in 'Common\uConsts.pas',
   uMaskFileSearchTask in 'Tasks\uMaskFileSearchTask.pas',
   uFileContentResearchTask in 'Tasks\uFileContentResearchTask.pas';

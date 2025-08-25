@@ -6,9 +6,10 @@ uses
   { VCL }
   Winapi.Windows, System.SysUtils,
   { Common }
-  uInterfaces, uCustomTasks, uFileUtils,
+  Common.uConsts, Common.uTypes, Common.uUtils, Common.uInterfaces, Common.uCustomTasks,
+  Common.uFileUtils,
   { MFR }
-  uConsts, Common.uConsts, Common.uUtils, uTypes;
+  uConsts;
 
 type
 
@@ -33,19 +34,20 @@ type
 
   strict private
 
-    FPattern: TBLOB;
+    FPattern: TBlob;
     FPath: String;
-    FFileData: TBLOB;
+    FFileData: TBlob;
     FDataLength: LongInt;
     FPatternLength: Integer;
     FOccurenceCount: LongInt;
 
     procedure ReadFile;
     procedure ProcessData;
+    function ComparePattern(_Pos: LongInt): Boolean;
 
-    property Pattern: TBLOB read FPattern;
+    property Pattern: TBlob read FPattern;
     property Path: String read FPath;
-    property FileData: TBLOB read FFileData;
+    property FileData: TBlob read FFileData;
     property DataLength: LongInt read FDataLength;
     property PatternLength: Integer read FPatternLength;
     property OccurenceCount: LongInt read FOccurenceCount;
@@ -58,6 +60,19 @@ type
   end;
 
 { TFileContentResearchTaskInstance }
+
+function TFileContentResearchTaskInstance.ComparePattern(_Pos: LongInt): Boolean;
+var
+  i: Integer;
+begin
+
+  for i := 1 to PatternLength do
+    if FileData[_Pos + i - 1] <> Pattern[i] then
+      Exit(False);
+
+  Result := True;
+
+end;
 
 procedure TFileContentResearchTaskInstance.Execute(const _OutputIntf: IMKOTaskOutput);
 begin
@@ -82,7 +97,7 @@ begin
 
   inherited Init(_OutputIntf);
 
-  FPattern := TBLOB(AnsiString(Params[0]));
+  FPattern := TBlob(AnsiString(Params[0]));
   FPath := Params[1];
 
   FPatternLength := Length(Pattern);
@@ -101,7 +116,7 @@ begin
 
     Progress := Round(i / L * 100);
 
-    if Copy(FileData, i, PatternLength) = Pattern then
+    if ComparePattern(i) then
     begin
 
       WriteOut(Format(SC_CONTENT_RESEARCH_TASK_PATTERN_FOUND_MESSAGE, [i]), Progress);

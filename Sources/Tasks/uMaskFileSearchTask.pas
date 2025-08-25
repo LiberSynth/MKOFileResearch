@@ -6,9 +6,10 @@ uses
   { VCL }
   Winapi.Windows, System.SysUtils,
   { Common }
-  uInterfaces, uCustomTasks,
+  Common.uConsts, Common.uTypes, Common.uUtils, Common.uInterfaces, Common.uCustomTasks,
+  Common.uFileExplorer,
   { MFR }
-  uConsts, uTypes, Common.uConsts, Common.uUtils, uFileExplorer;
+  uConsts;
 
 type
 

@@ -161,13 +161,13 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\..\MKOCommon\TaskManager\Common.uInterfaces.pas"/>
-        <DCCReference Include="..\..\MKOCommon\TaskManager\Common.uTypes.pas"/>
         <DCCReference Include="..\..\MKOCommon\Utils\Common.uConsts.pas"/>
-        <DCCReference Include="..\..\MKOCommon\Utils\Common.uUtils.pas"/>
-        <DCCReference Include="..\..\MKOCommon\Utils\Common.uFileExplorer.pas"/>
+        <DCCReference Include="..\..\MKOCommon\TaskManager\Common.uTypes.pas"/>
+        <DCCReference Include="..\..\MKOCommon\TaskManager\Common.uInterfaces.pas"/>
         <DCCReference Include="..\..\MKOCommon\TaskManager\Common.uCustomTasks.pas"/>
+        <DCCReference Include="..\..\MKOCommon\Utils\Common.uUtils.pas"/>
         <DCCReference Include="..\..\MKOCommon\Utils\Common.uFileUtils.pas"/>
+        <DCCReference Include="..\..\MKOCommon\Utils\Common.uFileExplorer.pas"/>
         <DCCReference Include="Common\uConsts.pas"/>
         <DCCReference Include="Tasks\uMaskFileSearchTask.pas"/>
         <DCCReference Include="Tasks\uFileContentResearchTask.pas">

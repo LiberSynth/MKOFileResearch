@@ -126,16 +126,16 @@ begin
 
   inherited Execute(_OutputIntf);
 
-  WriteOut(SC_FILE_SEARCH_TASK_PREPARING_MESSAGE, -1);
+  WriteOut(SC_MASK_FILE_SEARCH_TASK_PREPARING_MESSAGE, -1);
   CountFiles;
 
   if Terminated then
     Exit;
 
-  WriteOut(SC_FILE_SEARCH_TASK_PROCESSING_MESSAGE, -1);
+  WriteOut(SC_MASK_FILE_SEARCH_TASK_PROCESSING_MESSAGE, -1);
   ProcessFiles;
 
-  WriteOut(Format(SC_FILE_SEARCH_TASK_COMPLETE_MESSAGE, [FileCount, MatchingCount]), -1);
+  WriteOut(Format(SC_MASK_FILE_SEARCH_TASK_COMPLETE_MESSAGE, [FileCount, MatchingCount]), -1);
 
 end;
 
@@ -165,22 +165,22 @@ end;
 
 function TMaskFileSearchTask.GetCaption: WideString;
 begin
-  Result := SC_MASK_FILE_SEARCH_CAPTION;
+  Result := SC_MASK_FILE_SEARCH_TASK_CAPTION;
 end;
 
 function TMaskFileSearchTask.GetName: WideString;
 begin
-  Result := SC_MASK_FILE_SEARCH_NAME;
+  Result := SC_MASK_FILE_SEARCH_TASK_NAME;
 end;
 
 function TMaskFileSearchTask.GetDescription: WideString;
 begin
-  Result := SC_MASK_FILE_SEARCH_DESCRIPTION;
+  Result := SC_MASK_FILE_SEARCH_TASK_DESCRIPTION;
 end;
 
 function TMaskFileSearchTask.GetParamsHelpText: WideString;
 begin
-  Result := SC_MASK_FILE_SEARCH_PARAMS_HELP_TEXT;
+  Result := SC_MASK_FILE_SEARCH_PARAMS_HELP_TASK_TEXT;
 end;
 
 function TMaskFileSearchTask.ValidateParams(const _Params: IMKOTaskParams): LongBool; safecall;
@@ -196,14 +196,14 @@ begin
     EM := '';
 
     if not Count in [1, 2] then
-      EM := Format(SC_FORMAT, [EM, SC_FILE_SEARCH_TASK_PARAMS_COUNT_ERROR]);
+      EM := Format(SC_FORMAT, [EM, SC_MASK_FILE_SEARCH_TASK_PARAMS_COUNT_ERROR]);
 
     if
 
         ((Count = 1) and not DirectoryExists(_Params[0])) or
         ((Count = 2) and not DirectoryExists(_Params[1]))
 
-    then EM := Format(SC_FORMAT, [EM, SC_FILE_SEARCH_TASK_DIRECTORY_NOT_FOUND_ERROR]);
+    then EM := Format(SC_FORMAT, [EM, SC_MASK_FILE_SEARCH_TASK_DIRECTORY_NOT_FOUND_ERROR]);
 
     Result := not CutStr(EM, 2);
 

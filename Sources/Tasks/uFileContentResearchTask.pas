@@ -79,16 +79,16 @@ begin
 
   inherited Execute(_OutputIntf);
 
-  WriteOut(SC_CONTENT_RESEARCH_TASK_PREPARING_MESSAGE, -1);
+  WriteOut(SC_FILE_CONTENT_RESEARCH_TASK_PREPARING_MESSAGE, -1);
   ReadFile;
 
   if Terminated then
     Exit;
 
-  WriteOut(SC_CONTENT_RESEARCH_TASK_PROCESSING_MESSAGE, -1);
+  WriteOut(SC_FILE_CONTENT_RESEARCH_TASK_PROCESSING_MESSAGE, -1);
   ProcessData;
 
-  WriteOut(Format(SC_CONTENT_RESEARCH_TASK_COMPLETE_MESSAGE, [DataLength, OccurenceCount]), -1);
+  WriteOut(Format(SC_FILE_CONTENT_RESEARCH_TASK_COMPLETE_MESSAGE, [DataLength, OccurenceCount]), -1);
 
 end;
 
@@ -119,7 +119,7 @@ begin
     if ComparePattern(i) then
     begin
 
-      WriteOut(Format(SC_CONTENT_RESEARCH_TASK_PATTERN_FOUND_MESSAGE, [i]), Progress);
+      WriteOut(Format(SC_FILE_CONTENT_RESEARCH_TASK_PATTERN_FOUND_MESSAGE, [i]), Progress);
       Inc(FOccurenceCount);
 
     end
@@ -172,10 +172,10 @@ begin
     EM := '';
 
     if Count <> 2 then
-      EM := Format(SC_FORMAT, [EM, SC_CONTENT_RESEARCH_TASK_PARAMS_COUNT_ERROR]);
+      EM := Format(SC_FORMAT, [EM, SC_FILE_CONTENT_RESEARCH_TASK_PARAMS_COUNT_ERROR]);
 
     if (Count > 1) and not FileExists(_Params[1]) then
-      EM := Format(SC_FORMAT, [EM, SC_CONTENT_RESEARCH_TASK_FILE_NOT_FOUND_ERROR]);
+      EM := Format(SC_FORMAT, [EM, SC_FILE_CONTENT_RESEARCH_TASK_FILE_NOT_FOUND_ERROR]);
 
     Result := not CutStr(EM, 2);
 
